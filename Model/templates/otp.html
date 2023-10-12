@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OTP Verification</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;500&display=swap');
+body{
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    background-color: aliceblue;
+    font-family: 'Poppins', sans-serif;
+    user-select: none;
+}
+
+.container{
+    position:absolute;
+    top: 50%;
+    left:50%;
+    transform: translate(-50%,-50%);
+    width: 400px;
+    height: 250px;
+    padding: 20px 30px;
+    text-align: center;
+    border-radius: 10px;
+    background-color: rgb(211,230,247);
+}
+
+.container h2{
+
+    font-size: 20px;
+}
+
+.container p{
+    margin-bottom: 20px;
+}
+
+
+.wrap{
+
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    align-items: center;
+}
+
+.wrap input{
+    width: 40px;
+    height: 30px;
+    font-size: 18px;
+    text-align: center;
+    border-radius: 3px;
+    border: 0;
+    outline: 0;
+    cursor: pointer;
+}
+
+.wrap input:focus{
+    outline: 2.5px solid black;
+}
+.wrap input::-webkit-inner-spin-button{
+    display: none;
+}
+
+.wrap input::-webkit-outer-spin-button{
+    display: none;
+}
+
+button{
+    margin-top: 30px;
+    width: 50%;
+    height: 30px;
+    background-color: rgb(33,121,244);
+    color: white;
+    border: 0;
+    outline: 0;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.disable{
+
+    background-color: rgb(79, 149, 246);
+    pointer-events: none;
+}
+
+button:hover{
+    background-color: rgb(42, 114, 215);
+}
+
+small{
+    display: block;
+    font-size: 12px;
+    margin-top: 18px;
+}
+
+small a{
+
+    font-weight: bold;
+    color: rgb(33,121,244);
+    cursor: pointer;
+}
+    </style>
+
+</head>
+<body>
+    <div class="container">
+        <h2>Verify Your Account</h2>
+        <p>Enter the Otp to verify your email</p>
+        <div class="wrap">
+            <input type="number" class="code">
+            <input type="number" class="code">
+            <input type="number" class="code">
+            <input type="number" class="code">
+        </div>
+        <button id="btn" onclick="OTPVerify()">Verify</button>
+        <small>Didn't receive the code? <a onclick="resend()">RESEND</a></small>
+    </div>
+<script>
+    
+const codes = document.querySelectorAll('.code');
+const btn = document.getElementById('btn');
+
+codes[0].focus();
+
+btn.classList.add('disable');
+
+
+codes.forEach((code,idx) =>{
+
+    code.addEventListener('keydown',(e)=>{
+
+        if (e.key >= 0 && e.key <=9) {
+            
+            codes[idx].value = '';
+
+            setTimeout(()=>{
+
+                if (idx < (codes.length - 1)) {
+                    
+                    codes[idx+1].focus();
+
+                } 
+
+                BoxFilled()
+
+            },20) //20 milli second
+
+        } else if(e.key === 'Backspace'){
+            setTimeout(()=>{
+
+                if(idx>0){
+                    codes[idx-1].focus();
+                }
+                BoxFilled()
+                btn.classList.add('disable');
+            },20)  // 20 milli sec
+        }
+    })
+})
+
+
+
+const BoxFilled = () => {
+
+    const Filled = [...codes].every((code) => code.value !== '');
+
+    if (Filled) {
+        // if all the box is filled we have to enable the verify button
+        btn.classList.remove('disable');
+    } else {
+        // if not all box is filled we have to keep the button in disabled state..
+        btn.classList.add('disable');
+    }
+
+}
+
+
+const OTPVerify = () => {
+    const original_otp = parseInt("{{ otp }}");
+    const OTP = `${codes[0].value}${codes[1].value}${codes[2].value}${codes[3].value}`;
+
+    if (Number(OTP) === original_otp) {
+        alert('Code Verified');
+
+        const data = {
+            message: "A875ha87saxhba7'''///jkxhjba,[]ASMJAJBJ",
+            orderid: "{{ orderid }}",
+        };
+
+        const csrfToken = '{{ csrf_token }}';
+        const url = 'http://127.0.0.1:8000/handshake/confirmation';
+
+        // Create the request options including method, headers, and body
+        const requestOptions = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken,
+            },
+            body: JSON.stringify(data),
+        };
+
+        // Send the POST request using fetch
+        fetch(url, requestOptions)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json(); // Parse the response JSON if needed
+            })
+            .then(responseData => {
+                // Handle the response data here if needed
+                a = document.querySelector("body");
+                document.querySelector('.container').style.display = 'none';
+                var a = document.createElement('h1')
+                a.innerHTML = responseData['msg']
+                document.querySelector('body').appendChild(a); 
+            })
+            .catch(error => {
+                // Handle any errors that occurred during the fetch
+                console.error('There was a problem with the fetch operation:', error);
+            });
+    } else {
+        alert('Wrong Code');
+    }
+}
+
+
+
+function resend(){
+
+    alert('Code resent')
+
+    location.reload()
+
+    // resend script here 
+}
+
+
+
+//Thank you
+</script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CODE</title>
+    {% load static %}
+
+</head>
+<body>
+    <style>
+        body{
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+    </style>
+    <h1 style="text-align: center;">{{img}}</h1>
+    <div align="center">
+        <img src="{% static img %}.jpg" alt="" width="100%" style="border: 2px solid black;">
+    </div>
+</body>
+</html>
